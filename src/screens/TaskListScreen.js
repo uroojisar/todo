@@ -39,11 +39,12 @@ const TaskListScreen = ({navigation}) => {
     
         });
         console.log(tasks.length);
-    });
+    },[]);
 
     renderTask = ({ item }) => (
         <Task item={item}/>
     );
+    console.log("Return...");
     
         return (
             <>
@@ -62,7 +63,7 @@ const TaskListScreen = ({navigation}) => {
                 <FontAwesome name="search" style={styles.searchIconStyle}/>
                 <FontAwesome name="ellipsis-v" style={styles.ellipseIconStyle}/>
             </View>
-            <View syle={styles.background}>
+            <View style={styles.background}>
                 <FlatList
                     keyExtractor={keyExtractor}
                     data={tasks}
@@ -133,6 +134,9 @@ const styles = StyleSheet.create({
         margin: 25,
         alignSelf: "center",
         justifyContent: "center",
+    },
+    background: {
+        flex: 1
     }
   });
 

@@ -12,7 +12,7 @@ const Task = ({item}) => {
 
     
     return(
-        <ListItem bottomDivider style={styles.taskComponentstyle}>
+        <ListItem bottomDivider style={styles.taskComponentStyle}>
             <CheckBox
                 checked={checked}
                 onPress={() => {
@@ -29,7 +29,7 @@ const Task = ({item}) => {
 };
 
 const styles=StyleSheet.create({
-    taskComponentstyle: {
+    taskComponentStyle: {
         marginBottom: 5,
     }
 });
