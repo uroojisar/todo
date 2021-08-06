@@ -1,7 +1,9 @@
 import React, {useState} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import { CheckBox, ListItem } from 'react-native-elements';
 import moment from 'moment';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import SQLiteScreen from '../utils/sqlite';
 
 
 const Task = ({item}) => {
@@ -9,6 +11,7 @@ const Task = ({item}) => {
 
     const date = new Date(item.datetime);
     var days = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'];
+    var task_id = item.id;
 
     
     return(
@@ -19,10 +22,13 @@ const Task = ({item}) => {
                     setChecked(!checked);
                 console.log(checked); }}
             />
-          <ListItem.Content>
+        <ListItem.Content>
             <ListItem.Title>{item.task_title}</ListItem.Title>
             <ListItem.Subtitle>{moment(date).format("ddd, MMM Do YYYY, h:mm:ss a")}</ListItem.Subtitle>
-          </ListItem.Content>
+        </ListItem.Content>
+            <TouchableOpacity onPress={() => new SQLiteScreen().deleteById(task_id)}>
+                <FontAwesome name="trash" style={styles.trashIconStyle}/>
+            </TouchableOpacity>
         </ListItem>
     );
 
@@ -31,6 +37,10 @@ const Task = ({item}) => {
 const styles=StyleSheet.create({
     taskComponentStyle: {
         marginBottom: 5,
+    },
+    trashIconStyle: {
+        fontSize:20,
+        margin: 10
     }
 });
 export default Task;

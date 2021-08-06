@@ -10,41 +10,37 @@ import Task from '../components/Task';
 const TaskListScreen = ({navigation}) => {
 
     const [selectedValue, setSelectedValue] = useState("all");
-    const [taskList, setTaskList] = useState([]);
 
     let keyExtractor = (item, index) => index.toString();
 
-    const [tasks, setItems] = useState([]);
+    const [tasks, setTasks] = useState([]);
     const [empty, setEmpty] = useState([]);
-    
+
     useEffect(() => {
         db.transaction((tx) => {
-        tx.executeSql(
-            'SELECT * FROM tasks',
-            [],
-            (tx, results) => {
-            var temp = [];
-            for (let i = 0; i < results.rows.length; ++i)
-                temp.push(results.rows.item(i));
-            setItems(temp);
-    
-            if (results.rows.length >= 1) {
-                setEmpty(false);
-            } else {
-                setEmpty(true)
-            }
-    
-            }
-        );
-    
-        });
-        console.log(tasks.length);
-    },[]);
+            tx.executeSql(
+                'SELECT * FROM tasks',
+                [],
+                (tx, results) => {
+                var temp = [];
+                for (let i = 0; i < results.rows.length; ++i)
+                    temp.push(results.rows.item(i));
+                setTasks(temp);
+                        
+                if (results.rows.length >= 1) {
+                    setEmpty(false);
+                } else {
+                    setEmpty(true)
+                }
+                console.log("Total rows: ",results.rows.length);
+                }
+            );
+            })
+    }, [tasks.length]); // adjust dependencies to your needs. Note: Arrayes are compared by reference
 
     renderTask = ({ item }) => (
         <Task item={item}/>
     );
-    console.log("Return...");
     
         return (
             <>

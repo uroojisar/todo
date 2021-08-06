@@ -7,6 +7,7 @@ export default class SQLiteScreen extends Component {
     SQLite.DEBUG = true;
     this.createTable = this.CreateTable.bind(this);
     this.executeQuery = this.ExecuteQuery.bind(this);
+    this.deleteById = this.DeleteById.bind(this);
   }
 
   /**
@@ -37,6 +38,12 @@ export default class SQLiteScreen extends Component {
     // let clean = await this.executeQuery("DROP TABLE tasks;",[]);
     let Table = await this.executeQuery("CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, task_title VARCHAR(16), datetime INTEGER);",[]);
     console.log(Table);
+  }
+
+  async DeleteById(taskID) {
+    let deletedRow = await this.executeQuery(`DELETE FROM tasks WHERE id=${taskID};`,[]);
+    console.log("Row deleted", deletedRow);
+
   }
 
 }
