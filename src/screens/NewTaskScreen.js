@@ -5,6 +5,8 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import moment from 'moment';
 import {Picker} from '@react-native-picker/picker';
 import SQLiteScreen from '../utils/sqlite';
+import { connect } from 'react-redux';
+import { createTodo, deleteTodo, updateTodo } from '../actions/todo';
 
 
 class NewTaskScreen extends Component{
@@ -24,7 +26,6 @@ class NewTaskScreen extends Component{
     }
     
     onChangeDate(event, selectedDate) {
-        
         const currentDate = selectedDate || this.state.date;
 
         this.setState({date: currentDate});
@@ -38,8 +39,7 @@ class NewTaskScreen extends Component{
         console.log("time changed: ", this.state.time);
     };
     
-    render() {
-        
+    render() {        
         return (
             <View style={styles.background}>
             <Text style={styles.taskTitleStyle}>Write title of the task</Text>
@@ -211,4 +211,18 @@ const styles = StyleSheet.create({
     },
 });
 
-export default NewTaskScreen;
+// const mapStateToProps = function(state) {
+//     return {
+//         tasks: state.tasks
+//     };
+// };
+// const mapDispatchToProps = function(dispatch) {
+//     return {
+//         createTodo: (obj) => dispatch(createTodo(obj)),
+//         deleteTodo: (id) => dispatch(deleteTodo(id)),
+//         updateTodo: (obj) => dispatch(updateTodo(obj)),
+//     };
+// };
+
+export default connect(null, null)(NewTaskScreen);
+// export default connect(mapStateToProps, mapDispatchToProps)(NewTaskScreen);

@@ -4,44 +4,46 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {Picker} from '@react-native-picker/picker';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Task from '../components/Task';
+import { connect } from 'react-redux';
+import * as actions from '../reducers/todoReducer';
 
 
-
-const TaskListScreen = ({navigation}) => {
+const TaskListScreen = (props) => {
 
     const [selectedValue, setSelectedValue] = useState("all");
 
     let keyExtractor = (item, index) => index.toString();
 
-    const [tasks, setTasks] = useState([]);
-    const [empty, setEmpty] = useState([]);
+    // const [tasks, setTasks] = useState([]);
+    // const [empty, setEmpty] = useState([]);
 
-    useEffect(() => {
-        db.transaction((tx) => {
-            tx.executeSql(
-                'SELECT * FROM tasks',
-                [],
-                (tx, results) => {
-                var temp = [];
-                for (let i = 0; i < results.rows.length; ++i)
-                    temp.push(results.rows.item(i));
-                setTasks(temp);
-                        
-                if (results.rows.length >= 1) {
-                    setEmpty(false);
-                } else {
-                    setEmpty(true)
-                }
-                console.log("Total rows: ",results.rows.length);
-                }
-            );
-            })
-    }, [tasks.length]); // adjust dependencies to your needs. Note: Arrayes are compared by reference
+    // useEffect(() => {
+    //     console.log("props: ", props.tasks);
+    //     db.transaction((tx) => {
+    //         tx.executeSql(
+    //             'SELECT * FROM tasks',
+    //             [],
+    //             (tx, results) => {
+    //             var temp = [];
+    //             for (let i = 0; i < results.rows.length; ++i)
+    //                 temp.push(results.rows.item(i));
+    //             setTasks(temp);
+        
+    //             if (results.rows.length >= 1) {
+    //                 setEmpty(false);
+    //             } else {
+    //                 setEmpty(true)
+    //             }
+    //             console.log("Total rows: ",results.rows.length);
+    //             }
+    //         );
+    //         })
+    // }, [tasks.length]); // adjust dependencies to your needs. Note: Arrays are compared by reference
 
     renderTask = ({ item }) => (
         <Task item={item}/>
     );
-    
+    console.log("Props in tasklist screen: ", props);
         return (
             <>
             <View style={styles.header}>
@@ -62,12 +64,12 @@ const TaskListScreen = ({navigation}) => {
             <View style={styles.background}>
                 <FlatList
                     keyExtractor={keyExtractor}
-                    data={tasks}
+                    data={props.tasks}
                     renderItem={renderTask}
                 />
             </View>
             <View style={styles.addTaskButton}> 
-                <TouchableOpacity onPress={() => navigation.navigate("AddTask")}>
+                <TouchableOpacity onPress={() => props.navigation.navigate("AddTask")}>
                     <FontAwesome name="plus" style={styles.addIconStyle}/>
                 </TouchableOpacity>
             </View>
@@ -136,4 +138,8 @@ const styles = StyleSheet.create({
     }
   });
 
-export default TaskListScreen;
+const mapStateToProps = (state) => ({
+        tasks: state.todos // tasks will show up as props in TaskListScreen component
+});
+
+export default connect(mapStateToProps, null)(TaskListScreen);
