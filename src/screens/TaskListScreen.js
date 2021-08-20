@@ -14,9 +14,16 @@ const TaskListScreen = (props) => {
 
     let keyExtractor = (item, index) => index.toString();
 
+    const [allTodos, setAllTodos] = useState(props.tasks);
+
     renderTask = ({ item }) => (
         <Task item={item}/>
     );
+
+    viewTodosbyCategory = (itemValue) => {
+        setSelectedValue(itemValue);
+        (itemValue == "all") ? setAllTodos(props.tasks) : setAllTodos(props.tasks.filter((todo) => todo.category == itemValue))
+    };
     // console.log("Props in taskListScreen: ", props);
         return (
             <>
@@ -27,7 +34,7 @@ const TaskListScreen = (props) => {
                     dropdownIconColor="white"
                     selectedValue={selectedValue}
                     style={styles.pickerStyle}
-                    onValueChange={(itemValue) => setSelectedValue(itemValue)}
+                    onValueChange={(itemValue) => viewTodosbyCategory(itemValue)}
                     >
                         <Picker.Item label="All Lists" style={{ fontSize: 20 }} value="all"/>
                         <Picker.Item label="Default" style={{ fontSize: 20 }} value="default"/>
@@ -42,7 +49,7 @@ const TaskListScreen = (props) => {
             <View style={styles.background}>
                 <FlatList
                     keyExtractor={keyExtractor}
-                    data={props.tasks}
+                    data={allTodos}
                     renderItem={renderTask}
                 />
             </View>
