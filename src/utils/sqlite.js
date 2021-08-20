@@ -7,7 +7,8 @@ export default class SQLiteScreen extends Component {
     SQLite.DEBUG = true;
     this.createTable = this.CreateTable.bind(this);
     this.executeQuery = this.ExecuteQuery.bind(this);
-    this.deleteById = this.DeleteById.bind(this);
+    this.deleteByInsertTime = this.DeleteByInsertTime.bind(this);
+    this.addTodo = this.addTodo.bind(this);
   }
 
   /**
@@ -36,14 +37,21 @@ export default class SQLiteScreen extends Component {
   async CreateTable() {
       // Add column for task completed/ incomplete
     // let clean = await this.executeQuery("DROP TABLE tasks;",[]);
-    let Table = await this.executeQuery("CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, task_title VARCHAR(16), datetime INTEGER);",[]);
+    let Table = await this.executeQuery("CREATE TABLE IF NOT EXISTS tasks (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, task_title VARCHAR(16), datetime INTEGER, inserttime INTEGER, repeat VARCHAR(64), category VARCHAR(16));",[]);
     console.log(Table);
   }
 
-  async DeleteById(taskID) {
-    let deletedRow = await this.executeQuery(`DELETE FROM tasks WHERE id=${taskID};`,[]);
+  async addTodo(action){
+    let results = await new SQLiteScreen().ExecuteQuery(`Insert into tasks (task_title, datetime, inserttime, repeat, category) values ("${action.payload.task_title}", ${action.payload.datetime}, ${action.payload.inserttime}, "${action.payload.repeat}", "${action.payload.category}");`, []);
+    console.log("Todo saved to DB");
+    return results;
+
+};
+  async DeleteByInsertTime(todoInsertTime) {
+    let deletedRow = await this.executeQuery(`DELETE FROM tasks WHERE inserttime=${todoInsertTime};`,[]);
     console.log("Row deleted", deletedRow);
 
   }
+
 
 }

@@ -8,6 +8,7 @@ import {TaskProvider} from "./context/TaskContext";
 // Add this code to craete a Global variable db to connect with SQLite database.
 import SQLite from 'react-native-sqlite-storage';
 import { connect } from 'react-redux';
+import SQLiteScreen from './utils/sqlite';
 
 global.db = SQLite.openDatabase(
   {
@@ -38,10 +39,6 @@ const navigator = createStackNavigator(
 );
 
 const App = createAppContainer(navigator);
-
-// export default () => {
-//   return <App/>
-// };
 
 export default connect(null, null)(App);
 

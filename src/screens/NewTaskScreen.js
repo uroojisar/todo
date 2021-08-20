@@ -4,7 +4,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import moment from 'moment';
 import {Picker} from '@react-native-picker/picker';
-import SQLiteScreen from '../utils/sqlite';
 import { connect } from 'react-redux';
 import { createTodo, deleteTodo, updateTodo } from '../actions/todo';
 
@@ -21,7 +20,8 @@ class NewTaskScreen extends Component{
             timeMode: 'time',
             showDatePicker: false,       
             showTimePicker: false, 
-            repeatType: "No Repeat",    
+            repeatType: "No Repeat", 
+            listType: "Default",   
         };  
     }
     
@@ -36,7 +36,6 @@ class NewTaskScreen extends Component{
         const currentTime = selectedTime || this.state.time;
         this.setState({time: currentTime});
         this.setState({showTimePicker:false});
-        console.log("time changed: ", this.state.time);
     };
     
     render() {        
@@ -48,15 +47,14 @@ class NewTaskScreen extends Component{
                     style={styles.inputStyle}
                     value={this.state.title}
                     onChangeText={newTitle => this.setState({title: newTitle})}
-                    onSubmitEditing = {console.log("Textinput: ",this.state.title) }
+                    // onSubmitEditing = {console.log("Textinput: ",this.state.title) }
                     autoCapitalize = "none"
                     autoCorrect ={false}
                 />
             <Text style={styles.titleStyle}>Due date</Text>
                 <View style={styles.pickerFieldsContainer}>
                     <Text style={styles.dateFieldStyle}>
-                        {/* {moment(this.state.date).format('dddd, MMMM Do YYYY')} */}
-                        Text
+                        {moment(this.state.date).format('dddd, MMMM Do YYYY')}
                     </Text>                
                     <TouchableOpacity onPress = {() => {this.setState({showDatePicker:true})}}>
                         <FontAwesome name="calendar" style={styles.pickerIconStyle} /> 
@@ -69,7 +67,7 @@ class NewTaskScreen extends Component{
                             onChange={this.onChangeDate.bind(this)}
                         />)}
                     </TouchableOpacity> 
-                    <TouchableOpacity onPress = {() => {console.log("Date deleted")}}>
+                    <TouchableOpacity onPress = {() => {this.setState({date: new Date()})}}>
                         <FontAwesome name="times-circle" style={styles.pickerIconStyle} />
                     </TouchableOpacity>
 
@@ -90,7 +88,7 @@ class NewTaskScreen extends Component{
                         onChange={this.onChangeTime.bind(this)}
                     />)}
                 </TouchableOpacity> 
-                <TouchableOpacity onPress = {() => {console.log("time deleted")}}>
+                <TouchableOpacity onPress = {() => {this.setState({time: new Date()})}}>
                     <FontAwesome name="times-circle" style={styles.pickerIconStyle} />
                 </TouchableOpacity>
             </View>
@@ -127,18 +125,13 @@ class NewTaskScreen extends Component{
 
                 </Picker>
 
-            {/* <View style={styles.addTaskButton}>  */}
-            <TouchableOpacity style={styles.addTaskButton} onPress={() => {new SQLiteScreen().ExecuteQuery(`Insert into tasks (task_title, datetime) values ("${this.state.title}", ${this.state.milliseconds});`, [])}}>
+            <TouchableOpacity style={styles.addTaskButton} onPress={() => {
+                console.log("Typeof(listType): ", typeof(this.state.listType));
+                this.props.createTodo({"task_title": this.state.title, "datetime": this.state.milliseconds, "inserttime": new Date().getTime(), "repeat": this.state.repeatType, "category": this.state.listType});
+                }}>
             <FontAwesome name="check" style={styles.tickIconStyle}/>
             </TouchableOpacity>
-
-            {/* <TouchableOpacity style={styles.addTaskButton} onPress={() => {NavigationPreloadManager.navigate(Tasks)}>
-            <FontAwesome name="check" style={styles.tickIconStyle}/>
-            </TouchableOpacity> */}
-                
-            {/* </View> */}
             </View>
-
         );
 
     }
@@ -211,18 +204,18 @@ const styles = StyleSheet.create({
     },
 });
 
-// const mapStateToProps = function(state) {
-//     return {
-//         tasks: state.tasks
-//     };
-// };
-// const mapDispatchToProps = function(dispatch) {
-//     return {
-//         createTodo: (obj) => dispatch(createTodo(obj)),
-//         deleteTodo: (id) => dispatch(deleteTodo(id)),
-//         updateTodo: (obj) => dispatch(updateTodo(obj)),
-//     };
-// };
+// state is the entire Redux store state
+const mapStateToProps = (state) => {
+    return {
+        tasks: state.todos
+    };
+};
+const mapDispatchToProps = function(dispatch) {
+    return {
+        createTodo: (obj) => dispatch(createTodo(obj)),
+        deleteTodo: (id) => dispatch(deleteTodo(id)),
+        updateTodo: (obj) => dispatch(updateTodo(obj)),
+    };
+};
 
-export default connect(null, null)(NewTaskScreen);
-// export default connect(mapStateToProps, mapDispatchToProps)(NewTaskScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(NewTaskScreen);

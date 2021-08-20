@@ -5,7 +5,7 @@ import {Picker} from '@react-native-picker/picker';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Task from '../components/Task';
 import { connect } from 'react-redux';
-import * as actions from '../reducers/todoReducer';
+import { deleteTodo } from '../actions/todo';
 
 
 const TaskListScreen = (props) => {
@@ -14,36 +14,10 @@ const TaskListScreen = (props) => {
 
     let keyExtractor = (item, index) => index.toString();
 
-    // const [tasks, setTasks] = useState([]);
-    // const [empty, setEmpty] = useState([]);
-
-    // useEffect(() => {
-    //     console.log("props: ", props.tasks);
-    //     db.transaction((tx) => {
-    //         tx.executeSql(
-    //             'SELECT * FROM tasks',
-    //             [],
-    //             (tx, results) => {
-    //             var temp = [];
-    //             for (let i = 0; i < results.rows.length; ++i)
-    //                 temp.push(results.rows.item(i));
-    //             setTasks(temp);
-        
-    //             if (results.rows.length >= 1) {
-    //                 setEmpty(false);
-    //             } else {
-    //                 setEmpty(true)
-    //             }
-    //             console.log("Total rows: ",results.rows.length);
-    //             }
-    //         );
-    //         })
-    // }, [tasks.length]); // adjust dependencies to your needs. Note: Arrays are compared by reference
-
     renderTask = ({ item }) => (
         <Task item={item}/>
     );
-    console.log("Props in tasklist screen: ", props);
+    // console.log("Props in taskListScreen: ", props);
         return (
             <>
             <View style={styles.header}>
@@ -56,6 +30,10 @@ const TaskListScreen = (props) => {
                     onValueChange={(itemValue) => setSelectedValue(itemValue)}
                     >
                         <Picker.Item label="All Lists" style={{ fontSize: 20 }} value="all"/>
+                        <Picker.Item label="Default" style={{ fontSize: 20 }} value="default"/>
+                        <Picker.Item label="Personal" style={{ fontSize: 20 }} value="personal"/>
+                        <Picker.Item label="Shopping" style={{ fontSize: 20 }} value="shopping"/>
+                        <Picker.Item label="Wishlist" style={{ fontSize: 20 }} value="wishlist"/>
                         <Picker.Item label="Work" style={{ fontSize: 20 }} value="work"/>
                     </Picker>
                 <FontAwesome name="search" style={styles.searchIconStyle}/>
@@ -138,8 +116,19 @@ const styles = StyleSheet.create({
     }
   });
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state) => {
+    // console.log("MapSate TaskListScreen method called");
+    console.log("MapSate in TaskListScreen: ", state.todos);
+    return {
         tasks: state.todos // tasks will show up as props in TaskListScreen component
-});
+    };
+};
 
-export default connect(mapStateToProps, null)(TaskListScreen);
+const mapDispatchToProps = function(dispatch) {
+    return {
+        deleteTodo: (id) => dispatch(deleteTodo(id)),
+        // updateTodo: (obj) => dispatch(updateTodo(obj)),
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TaskListScreen);

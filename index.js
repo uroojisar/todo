@@ -8,25 +8,19 @@ import App from './src/app';
 import {name as appName} from './app.json';
 import { Provider } from 'react-redux';
 import configureStore from './src/store/configureStore';
+import SQLiteScreen from './src/utils/sqlite';
 
-// const store = configureStore();
-
-// const RNRedux = () => (
-//     <Provider store = { store }>
-//     <App />
-//   </Provider>
-// )
-class RNRedux  extends Component {
+class RNRedux extends Component {
   
   constructor(){
     super();
     this.state = {
-      tasks: [],
-      preloadedTodos: {}
+      todos: [],
+      preloadedTodos: {"todos": []}
     };
   }
   componentDidMount(){
-    console.log("use Effect in RNRedux (componentDidMount)");
+    new SQLiteScreen().createTable();    
     db.transaction((tx) => {
         tx.executeSql(
             'SELECT * FROM tasks',
@@ -35,17 +29,14 @@ class RNRedux  extends Component {
             var temp = [];
             for (let i = 0; i < results.rows.length; ++i)
                 temp.push(results.rows.item(i));
-            this.state.tasks.push(temp);
-    
-            console.log("Total rows: ",results.rows.length);
+            this.setState({todos: temp});
+            this.setState({preloadedTodos: {...this.state.preloadedTodos, "todos": this.state.todos}});
+            // console.log("Total rows: ",results.rows.length);
             }
         );
         })
-        this.state.preloadedTodos = { "todos": this.state.tasks};
   }
   render(){
-    console.log("this.state.tasks: ", this.state.tasks);
-    console.log("Preloaded state: ", this.state.preloadedTodos);
     return (
       <Provider store = { configureStore(this.state.preloadedTodos) }>
         <App />

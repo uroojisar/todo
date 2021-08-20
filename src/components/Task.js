@@ -3,16 +3,17 @@ import {StyleSheet, TouchableOpacity} from 'react-native';
 import { CheckBox, ListItem } from 'react-native-elements';
 import moment from 'moment';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import SQLiteScreen from '../utils/sqlite';
+import { deleteTodo } from '../actions/todo';
+import { connect } from 'react-redux';
 
 
-const Task = ({item}) => {
+const Task = (props) => {
     const [checked, setChecked] = useState(false);
 
+    const item = props.item;
     const date = new Date(item.datetime);
     var days = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'];
-    var task_id = item.id;
-
+    var inserttime = item.inserttime;
     
     return(
         <ListItem bottomDivider style={styles.taskComponentStyle}>
@@ -23,10 +24,12 @@ const Task = ({item}) => {
                 console.log(checked); }}
             />
         <ListItem.Content>
-            <ListItem.Title>{item.task_title}</ListItem.Title>
+            <TouchableOpacity onPress = {() => console.log("Touchable")}>
+                <ListItem.Title>{item.task_title}</ListItem.Title>
+            </TouchableOpacity>
             <ListItem.Subtitle>{moment(date).format("ddd, MMM Do YYYY, h:mm:ss a")}</ListItem.Subtitle>
         </ListItem.Content>
-            <TouchableOpacity onPress={() => new SQLiteScreen().deleteById(task_id)}>
+            <TouchableOpacity onPress={() => props.deleteTodo(inserttime)}>
                 <FontAwesome name="trash" style={styles.trashIconStyle}/>
             </TouchableOpacity>
         </ListItem>
@@ -43,4 +46,11 @@ const styles=StyleSheet.create({
         margin: 10
     }
 });
-export default Task;
+
+const mapDispatchToProps = function(dispatch) {
+    return {
+        deleteTodo: (id) => dispatch(deleteTodo(id)),
+    };
+};
+
+export default connect(null, mapDispatchToProps)(Task);

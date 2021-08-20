@@ -1,33 +1,24 @@
 import { TODO_CREATE, TODO_UPDATE, TODO_DELETE } from '../constants';
+import SQLiteScreen from '../utils/sqlite';
 
 const initialState = {
-    // todos: [{
-    //     task_id: 1,
-    //     task_title: "Sample todo",
-    // }]
     todos: []
 };
 const todoReducer = (state = initialState, action) => {
     switch(action.type) {
-        // case TODO_CREATE:
-        //     console.log("action.payload: ", action.payload);
-        //     return {
-        //     ...state,
-        //     todos: initialState.todos.push(action.payload)
-        //     };
+        case TODO_CREATE:
+            new SQLiteScreen().addTodo(action);
+            return [...state, action.payload];
         // case TODO_UPDATE:
         //     return {
         //     ...state,
         //     todos: initialState.todos.push(action.payload)
         //     };
-        // case TODO_DELETE:
-        //     return {
-        //     ...state,
-        //     todos: initialState.todos.push(action.payload)
-        //     };
+        case TODO_DELETE:
+            new SQLiteScreen().deleteByInsertTime(action.payload);
+            // let newState = state.filter(todo => todo.inserttime != action.payload);
+            return [...state.filter(todo => todo.inserttime != action.payload)]
         default:
-            console.log("Default state in reducer: ", state);
-            // console.log("Props in reducer: ", );
             return state;
     }
 }
