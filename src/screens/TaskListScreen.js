@@ -1,30 +1,43 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, FlatList} from 'react-native';
+import {View, StyleSheet, FlatList, TouchableOpacity, TextInput} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {Picker} from '@react-native-picker/picker';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import Task from '../components/Task';
 import { connect } from 'react-redux';
-import { deleteTodo } from '../actions/todo';
 
 
 const TaskListScreen = (props) => {
 
     const [selectedValue, setSelectedValue] = useState("all");
+    const [allTodos, setAllTodos] = useState(props.tasks);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searchFlag, setSearchFlag] = useState(false);
 
     let keyExtractor = (item, index) => index.toString();
 
-    const [allTodos, setAllTodos] = useState(props.tasks);
+
+    // Due to async nature of hooks, the statement const [allTodos, setAllTodos] = useState(props.tasks) could execute after we read the allTodos array..that's it is set using useEffect hook.
+    useEffect(() => {
+        setAllTodos(props.tasks);
+    },[props.tasks]);
+
+    useEffect(() => {
+        setAllTodos(props.tasks.filter((todo) => todo.task_title === searchTerm || todo.task_title.includes(searchTerm)));
+        setSearchTerm("");
+        
+    },[searchFlag]);
 
     renderTask = ({ item }) => (
-        <Task item={item}/>
+        <Task item={item} navigation={props.navigation}/>
     );
 
     viewTodosbyCategory = (itemValue) => {
+        console.log(" Checking todos: ", props);
         setSelectedValue(itemValue);
-        (itemValue == "all") ? setAllTodos(props.tasks) : setAllTodos(props.tasks.filter((todo) => todo.category == itemValue))
+        // (itemValue === "all") ? setAllTodos(props.tasks.filter((todo) => todo.category != "finished")) : setAllTodos(props.tasks.filter((todo) => todo.category == itemValue));
+        (itemValue === "all") ? setAllTodos(props.tasks.filter((todo) => todo.category != "finished")) : setAllTodos(props.tasks.filter((todo) => todo.category == itemValue));
     };
-    // console.log("Props in taskListScreen: ", props);
+   
         return (
             <>
             <View style={styles.header}>
@@ -42,9 +55,13 @@ const TaskListScreen = (props) => {
                         <Picker.Item label="Shopping" style={{ fontSize: 20 }} value="shopping"/>
                         <Picker.Item label="Wishlist" style={{ fontSize: 20 }} value="wishlist"/>
                         <Picker.Item label="Work" style={{ fontSize: 20 }} value="work"/>
+                        <Picker.Item label="Finished" style={{ fontSize: 20 }} value="finished"/>
                     </Picker>
-                <FontAwesome name="search" style={styles.searchIconStyle}/>
-                <FontAwesome name="ellipsis-v" style={styles.ellipseIconStyle}/>
+                    <TextInput placeholder="Search todos" style={styles.searchBarStyle} value={searchTerm} onChangeText={newTerm => setSearchTerm(newTerm)} onSubmitEditing={() => {
+                        setSelectedValue("all");
+                        setSearchFlag(!searchFlag);
+                        }}/>
+                    <FontAwesome name="search" style={styles.searchIconStyle}/>
             </View>
             <View style={styles.background}>
                 <FlatList
@@ -54,7 +71,7 @@ const TaskListScreen = (props) => {
                 />
             </View>
             <View style={styles.addTaskButton}> 
-                <TouchableOpacity onPress={() => props.navigation.navigate("AddTask")}>
+                <TouchableOpacity onPress={() => props.navigation.navigate("AddTask", {editMode: false})}>
                     <FontAwesome name="plus" style={styles.addIconStyle}/>
                 </TouchableOpacity>
             </View>
@@ -66,20 +83,18 @@ const TaskListScreen = (props) => {
 const styles = StyleSheet.create({
     header: {
       backgroundColor: 'teal',
-    //   backgroundColor: '#F8F8F8',
       height: 50,
       flexDirection:"row",
       paddingTop:5,
+    // justifyContent: "space-around"
     },
     checkIconStyle: {
         color: "white",
         fontSize: 30,
         margin: 5,
         marginLeft: 15,
-        // flex: 1
     },
     pickerStyle: {
-        // fontSize: 20,
         margin: 5,
         flex: 0,
         width: 180,
@@ -90,15 +105,8 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 25,
         margin: 5,
-        marginRight: 15,
-        flex: 1,
-        textAlign: "right"
-    },
-    ellipseIconStyle: {
-        color: "white",
-        fontSize: 25,
-        margin: 5,
-        marginRight: 15,
+        alignSelf: "center",
+
     },
     addTaskButton: {
         backgroundColor: "teal",
@@ -106,7 +114,7 @@ const styles = StyleSheet.create({
         height:75,
         width: 75,
         margin: 15,
-        position: "absolute", // Show the button at the botom of the screen
+        position: "absolute", // Show the button at the bottom of the screen
         bottom: 0, // Show the button at the bottom of the screen
         right:5,
         alignSelf: "flex-end",
@@ -120,22 +128,27 @@ const styles = StyleSheet.create({
     },
     background: {
         flex: 1
+    },
+    searchBarStyle: {
+        borderColor: "white",
+        borderBottomWidth: 1,
+        color: "white",
+        margin: 5,
+        alignSelf: "center",
     }
   });
 
 const mapStateToProps = (state) => {
-    // console.log("MapSate TaskListScreen method called");
-    console.log("MapSate in TaskListScreen: ", state.todos);
     return {
-        tasks: state.todos // tasks will show up as props in TaskListScreen component
+        tasks: state.todos, // tasks will show up as props in TaskListScreen component
     };
 };
 
-const mapDispatchToProps = function(dispatch) {
-    return {
-        deleteTodo: (id) => dispatch(deleteTodo(id)),
-        // updateTodo: (obj) => dispatch(updateTodo(obj)),
-    };
-};
+// const mapDispatchToProps = function(dispatch) {
+//     return {
+//         // updateTodo: (obj) => dispatch(updateTodo(obj)),
+//         setEditMode: (mode) => dispatch(setEditMode(mode)),
+//     };
+// };
 
-export default connect(mapStateToProps, mapDispatchToProps)(TaskListScreen);
+export default connect(mapStateToProps, null)(TaskListScreen);

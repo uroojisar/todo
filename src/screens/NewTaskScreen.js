@@ -9,43 +9,63 @@ import { createTodo, deleteTodo, updateTodo } from '../actions/todo';
 
 
 class NewTaskScreen extends Component{
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+        // this.state={
+        //     title: "", 
+        //     date: new Date(),
+        //     time: new Date(),
+        //     milliseconds: new Date().getTime(),
+        //     dateMode: 'date',
+        //     timeMode: 'time',
+        //     showDatePicker: false,       
+        //     showTimePicker: false, 
+        //     repeatType: "No Repeat", 
+        //     listType: "Default",  
+        //     todoId: 0, 
+
+        // }
+
         this.state={
-            title: " ", 
-            date: new Date(),
-            time: new Date(),
-            milliseconds: new Date().getTime(),
+            title: props.todoToUpdate.task_title, 
+            time: new Date(props.todoToUpdate.datetime),
+            date: new Date(props.todoToUpdate.datetime),
+            milliseconds: new Date(props.todoToUpdate.datetime).getTime(),
             dateMode: 'date',
             timeMode: 'time',
             showDatePicker: false,       
             showTimePicker: false, 
-            repeatType: "No Repeat", 
-            listType: "Default",   
-        };  
+            repeatType: props.todoToUpdate.repeat, 
+            listType: props.todoToUpdate.category, 
+            todoId: 0, 
+            inserttime: props.todoToUpdate.inserttime, 
+
+        };
+        
+       
     }
-    
     onChangeDate(event, selectedDate) {
+        
         const currentDate = selectedDate || this.state.date;
 
-        this.setState({date: currentDate});
-        this.setState({showDatePicker:false});
-        this.setState({milliseconds:currentDate.getTime()});
+        this.setState({date: currentDate, showDatePicker:false, milliseconds:currentDate.getTime()});
+        console.log("Date is changed: ", this.state.date);
     };
     onChangeTime(event, selectedTime) {
         const currentTime = selectedTime || this.state.time;
-        this.setState({time: currentTime});
-        this.setState({showTimePicker:false});
+        console.log("Current time: ", currentTime);
+        console.log("this.state.date ", this.state.date);
+        this.setState({time: currentTime, showTimePicker:false, milliseconds: currentTime.getTime(), date: currentTime});
     };
-    
-    render() {        
+
+    render() {     
         return (
             <View style={styles.background}>
             <Text style={styles.taskTitleStyle}>Write title of the task</Text>
                 <TextInput 
                     placeholder="Add title here"
                     style={styles.inputStyle}
-                    value={this.state.title}
+                    value= {this.state.title}
                     onChangeText={newTitle => this.setState({title: newTitle})}
                     // onSubmitEditing = {console.log("Textinput: ",this.state.title) }
                     autoCapitalize = "none"
@@ -107,7 +127,6 @@ class NewTaskScreen extends Component{
                         <Picker.Item label="Once a Month" style={styles.pickerItemStyle} value="once a month"/>
                         <Picker.Item label="Once a Year" style={styles.pickerItemStyle} value="once a year"/>
                         <Picker.Item label="Other..." style={styles.pickerItemStyle} value="other"/>
-
                 </Picker>
 
             <Text style={styles.titleStyle}>Add to List</Text>
@@ -126,8 +145,13 @@ class NewTaskScreen extends Component{
                 </Picker>
 
             <TouchableOpacity style={styles.addTaskButton} onPress={() => {
-                console.log("Typeof(listType): ", typeof(this.state.listType));
-                this.props.createTodo({"task_title": this.state.title, "datetime": this.state.milliseconds, "inserttime": new Date().getTime(), "repeat": this.state.repeatType, "category": this.state.listType});
+                if (this.props.editMode){
+                    this.props.updateTodo({"task_title": this.state.title, "datetime": this.state.milliseconds, "inserttime": this.state.inserttime, "repeat": this.state.repeatType, "category": this.state.listType});
+                    this.props.navigation.navigate("Tasks");
+                } else {
+                    this.props.createTodo({"task_title": this.state.title, "datetime": this.state.milliseconds, "inserttime": new Date().getTime(), "repeat": this.state.repeatType, "category": this.state.listType});
+                    this.props.navigation.navigate("Tasks");
+                }
                 }}>
             <FontAwesome name="check" style={styles.tickIconStyle}/>
             </TouchableOpacity>
@@ -205,9 +229,12 @@ const styles = StyleSheet.create({
 });
 
 // state is the entire Redux store state
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
+    var todoToUpdate = ownProps.navigation.state.params["editMode"]?state.todos.filter(todo => todo.inserttime === ownProps.navigation.state.params["todoID"])[0]: { task_title: "", datetime: new Date(), inserttime: new Date().getTime(), repeat: "No Repeat", category: "Default"};
     return {
-        tasks: state.todos
+        tasks: state.todos,
+        editMode: ownProps.navigation.state.params["editMode"],
+        todoToUpdate
     };
 };
 const mapDispatchToProps = function(dispatch) {

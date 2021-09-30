@@ -1,15 +1,14 @@
 import React, {useState} from 'react';
-import {StyleSheet, TouchableOpacity} from 'react-native';
+import {StyleSheet, TouchableOpacity, TouchableWithoutFeedback} from 'react-native';
 import { CheckBox, ListItem } from 'react-native-elements';
 import moment from 'moment';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { deleteTodo } from '../actions/todo';
 import { connect } from 'react-redux';
+import { deleteTodo, setEditMode, finishTodo } from "../actions/todo";
 
 
 const Task = (props) => {
     const [checked, setChecked] = useState(false);
-
     const item = props.item;
     const date = new Date(item.datetime);
     var days = ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'];
@@ -21,14 +20,22 @@ const Task = (props) => {
                 checked={checked}
                 onPress={() => {
                     setChecked(!checked);
-                console.log(checked); }}
+                    // Mark todo/task as 'Finished'.
+                    if (checked){
+                        props.finishTodo(item);
+                        console.log("todo marked as finished"); 
+                    }
+
+                }}
             />
+        <TouchableWithoutFeedback onPress={() => {
+            props.navigation.navigate("AddTask", {todoID: inserttime, editMode: true} );
+        }}>
         <ListItem.Content>
-            <TouchableOpacity onPress = {() => console.log("Touchable")}>
                 <ListItem.Title>{item.task_title}</ListItem.Title>
-            </TouchableOpacity>
             <ListItem.Subtitle>{moment(date).format("ddd, MMM Do YYYY, h:mm:ss a")}</ListItem.Subtitle>
         </ListItem.Content>
+        </TouchableWithoutFeedback>
             <TouchableOpacity onPress={() => props.deleteTodo(inserttime)}>
                 <FontAwesome name="trash" style={styles.trashIconStyle}/>
             </TouchableOpacity>
@@ -50,6 +57,8 @@ const styles=StyleSheet.create({
 const mapDispatchToProps = function(dispatch) {
     return {
         deleteTodo: (id) => dispatch(deleteTodo(id)),
+        setEditMode: (mode) => dispatch(setEditMode(mode)),
+        finishTodo: (todo) => dispatch(finishTodo(todo)),
     };
 };
 

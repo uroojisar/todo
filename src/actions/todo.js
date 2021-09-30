@@ -2,6 +2,7 @@ import {
     TODO_CREATE,
     TODO_DELETE, 
     TODO_UPDATE,
+    TODO_FINISH,
   } from '../constants';
 
 export function createTodo (todo) {
@@ -25,3 +26,9 @@ export function updateTodo (todo) {
     }
 }
 
+export function finishTodo (todo) {
+    return {
+        type: TODO_FINISH,
+        payload: todo
+    }
+}
